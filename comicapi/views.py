@@ -77,7 +77,11 @@ def detail_comic(request):
             continue;
         if "{{date}}" in chapter_date:
             continue;
-        data = [chapter_url, chapter_num, chapter_date]
+        data = {
+            "chapter_url": chapter_url,
+            "chapter_num": chapter_num,
+            "chapter_date": chapter_date
+        }
         allChapter.append(data)
 
     comic_detail = {
@@ -127,16 +131,36 @@ def read_comic(request):
     content = body['comic_url']
     comic_url = request.POST.get('comic_url')
     page = requests.get(content, headers={'User-Agent': 'Mozilla/5.0'})
-    soup = BeautifulSoup(page.text, 'html.parser')
+    soup = BeautifulSoup(page.content, 'html.parser')
+    soup = soup.find("div", {"id": "content"})
+    soup = soup.find("div", {"class": "wrapper"})
+    scripts = soup.findAll('script')
+    next_url = ""
+    prev_url = ""
+    for script in scripts:
+        if "BELUM ADA CHAPTER" in script.text:
+            data = json.loads(script.text[14:-2])
+            prev_url = data["prevUrl"]
+            next_url = data["nextUrl"]
+            break
     datas = soup.find("div", {"id": "readerarea"})
-    images = datas.findAll("img")
-    image = []
-    for img in images:
+    datas = datas.findAll("img")
+    images = []
+    x = 1
+    for img in datas:
         image_url = img['src']
+        # image_index = img['data-index']
         # image_url = urllib.parse.quote(image_url, safe='')
-        image.append(image_url)
+        image = {
+            "image_url": image_url,
+            "image_index": x
+        }
+        images.append(image)
+        x = x + 1
     response = {
-        "image_url": image
+        "image_url": images,
+        "next_url": next_url,
+        "prev_url": prev_url
     }
     return JsonResponse(response)
 
@@ -155,7 +179,11 @@ def list_comic(request):
         comic_url = comic.find("a")["href"]
         comic_title = comic.find("a")["title"]
         comic_thumbnail = comic.find("img")["data-lazy-src"]
-        data = [comic_url, comic_title, comic_thumbnail]
+        data = {
+            "comic_url": comic_url,
+            "comic_title": comic_title,
+            "comic_thumbnail": comic_thumbnail
+        }
         comic_data.append(data)
 
     list_update0 = list_updates[0]
@@ -164,7 +192,11 @@ def list_comic(request):
         comic_url = comic.find("a")["href"]
         comic_title = comic.find("a")["title"]
         comic_thumbnail = comic.find("img")["data-lazy-src"]
-        data = [comic_url, comic_title, comic_thumbnail]
+        data = {
+            "comic_url": comic_url,
+            "comic_title": comic_title,
+            "comic_thumbnail": comic_thumbnail
+        }
         comic_data.append(data)
     response = {
         "data": comic_data
