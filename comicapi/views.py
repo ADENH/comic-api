@@ -88,9 +88,12 @@ def detail_comic(request):
         "title": title,
         "description": description,
         "rating": rating,
-        "chapterList": allChapter
+        "chapter_list": allChapter
     }
-    return JsonResponse(comic_detail)
+    body_response = {
+        "data": comic_detail
+    }
+    return JsonResponse(body_response)
 
 @csrf_exempt
 def popular_comic(request):
@@ -122,7 +125,10 @@ def popular_comic(request):
     response = {
         "comics": popular_url
     }
-    return JsonResponse(response)
+    body_response = {
+        "data": response
+    }
+    return JsonResponse(body_response)
 
 @csrf_exempt
 def read_comic(request):
@@ -158,11 +164,14 @@ def read_comic(request):
         images.append(image)
         x = x + 1
     response = {
-        "image_url": images,
+        "image_urls": images,
         "next_url": next_url,
         "prev_url": prev_url
     }
-    return JsonResponse(response)
+    body_response = {
+        "data": response
+    }
+    return JsonResponse(body_response)
 
 @csrf_exempt
 def list_comic(request):
