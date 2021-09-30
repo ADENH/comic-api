@@ -135,7 +135,6 @@ def read_comic(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     content = body['comic_url']
-    comic_url = request.POST.get('comic_url')
     page = requests.get(content, headers={'User-Agent': 'Mozilla/5.0'})
     soup = BeautifulSoup(page.content, 'html.parser')
     soup = soup.find("div", {"id": "content"})
@@ -189,9 +188,12 @@ def list_comic(request):
         comic_title = comic.find("a")["title"]
         comic_thumbnail = comic.find("img")["data-lazy-src"]
         data = {
+            "title": comic_title,
+            "type_comic": "",
+            "chapter": "",
+            "rating": "",
             "comic_url": comic_url,
-            "comic_title": comic_title,
-            "comic_thumbnail": comic_thumbnail
+            "thumbnail_url": comic_thumbnail
         }
         comic_data.append(data)
 
@@ -202,12 +204,55 @@ def list_comic(request):
         comic_title = comic.find("a")["title"]
         comic_thumbnail = comic.find("img")["data-lazy-src"]
         data = {
+            "title": comic_title,
+            "type_comic": "",
+            "chapter": "",
+            "rating": "",
             "comic_url": comic_url,
-            "comic_title": comic_title,
-            "comic_thumbnail": comic_thumbnail
+            "thumbnail_url": comic_thumbnail
         }
         comic_data.append(data)
     response = {
         "data": comic_data
     }
     return JsonResponse(response)
+
+@csrf_exempt
+def search_comic(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    content = body['keyword']
+    url = "https://kiryuu.id/?s=" + content
+    page = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+    soup = BeautifulSoup(page.content, 'html.parser')
+    list_updates = soup.find("div", {"class": "bixbox"})
+    comics = list_updates.findAll("div", {"class": "bsx"})
+    list_comics = []
+    for data in comics:
+        link = data.find('a')
+        comic_url = link['href']
+        thumbnail = data.find("img", {"class": "ts-post-image"})
+        thumbnail_url = thumbnail['src']
+        title = data.find("div", {"class": "tt"}).text.strip()
+        chapter = data.find("div", {"class": "epxs"}).text
+        rating = data.find("div", {"class": "numscore"}).text
+        type_comic = data.find("span", {"class": "type"})
+        if type_comic is not None:
+            type_comic = type_comic['class'][1]
+        # comic_data = [comic_url, thumbnail_url, title, type_comic, chapter, rating]
+        comic_data = {
+            "title": title,
+            "type_comic": type_comic,
+            "chapter": chapter,
+            "rating": rating,
+            "comic_url": comic_url,
+            "thumbnail_url": thumbnail_url
+        }
+        list_comics.append(comic_data)
+    response = {
+        "comics": list_comics
+    }
+    body_response = {
+        "data": response
+    }
+    return JsonResponse(body_response)

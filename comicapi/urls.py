@@ -9,6 +9,7 @@ router.register(r'comics', views.ComicViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
+    path('search-comic/', views.search_comic, name="search_comic"),
     path('popular-comic/',views.popular_comic ,name="popular_comic"),
     path('detail-comic/',views.detail_comic ,name="detail_comic"),
     path('read-comic/', views.read_comic, name="read_comic"),
