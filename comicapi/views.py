@@ -26,7 +26,7 @@ class ComicViewSet(viewsets.ModelViewSet):
         link = data.find('a')
         comic_url = link['href']
         thumbnail = data.find("img", {"class": "ts-post-image"})
-        thumbnail_url = thumbnail['data-lazy-src']
+        thumbnail_url = thumbnail['src']
         title = data.find("div", {"class": "tt"}).text.strip()
         chapter = data.find("div", {"class": "epxs"}).text
         rating = data.find("div", {"class": "numscore"}).text
@@ -186,7 +186,7 @@ def list_comic(request):
     for comic in list_update:
         comic_url = comic.find("a")["href"]
         comic_title = comic.find("a")["title"]
-        comic_thumbnail = comic.find("img")["data-lazy-src"]
+        comic_thumbnail = comic.find("img")["src"]
         data = {
             "title": comic_title,
             "type_comic": "",
@@ -202,7 +202,7 @@ def list_comic(request):
     for comic in list_update0:
         comic_url = comic.find("a")["href"]
         comic_title = comic.find("a")["title"]
-        comic_thumbnail = comic.find("img")["data-lazy-src"]
+        comic_thumbnail = comic.find("img")["src"]
         data = {
             "title": comic_title,
             "type_comic": "",
