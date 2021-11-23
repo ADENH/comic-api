@@ -106,7 +106,7 @@ def popular_comic(request):
         link = data.find('a')
         comic_url = link['href']
         thumbnail = data.find("img", {"class": "ts-post-image"})
-        thumbnail_url = thumbnail['data-lazy-src']
+        thumbnail_url = thumbnail['src']
         title = data.find("div", {"class": "tt"}).text.strip()
         chapter = data.find("div", {"class": "epxs"}).text
         rating = data.find("div", {"class": "numscore"}).text
