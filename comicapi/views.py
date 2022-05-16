@@ -8,6 +8,7 @@ from .serializers import ComicSerializer
 from .models import ComicPopular
 import json
 from django.http import JsonResponse
+import re
 import urllib
 from rest_framework.decorators import api_view
 
@@ -107,6 +108,9 @@ def popular_comic(request):
         comic_url = link['href']
         thumbnail = data.find("img", {"class": "ts-post-image"})
         thumbnail_url = thumbnail['src']
+        if ".jpg" not in thumbnail_url:
+            if ".png" not in thumbnail_url:
+                thumbnail_url = thumbnail['data-lazy-src']
         title = data.find("div", {"class": "tt"}).text.strip()
         chapter = data.find("div", {"class": "epxs"}).text
         rating = data.find("div", {"class": "numscore"}).text
@@ -187,6 +191,8 @@ def list_comic(request):
         comic_url = comic.find("a")["href"]
         comic_title = comic.find("a")["title"]
         comic_thumbnail = comic.find("img")["src"]
+        if not imageFile(comic_thumbnail):
+            comic_thumbnail = comic.find("img")["data-lazy-src"]
         data = {
             "title": comic_title,
             "type_comic": "",
@@ -203,6 +209,8 @@ def list_comic(request):
         comic_url = comic.find("a")["href"]
         comic_title = comic.find("a")["title"]
         comic_thumbnail = comic.find("img")["src"]
+        if not imageFile(comic_thumbnail):
+            comic_thumbnail = comic.find("img")["data-lazy-src"]
         data = {
             "title": comic_title,
             "type_comic": "",
@@ -233,6 +241,8 @@ def search_comic(request):
         comic_url = link['href']
         thumbnail = data.find("img", {"class": "ts-post-image"})
         thumbnail_url = thumbnail['src']
+        if ".jpg" not in thumbnail_url:
+            thumbnail_url = thumbnail_url["data-lazy-src"]
         title = data.find("div", {"class": "tt"}).text.strip()
         chapter = data.find("div", {"class": "epxs"}).text
         rating = data.find("div", {"class": "numscore"}).text
@@ -256,3 +266,23 @@ def search_comic(request):
         "data": response
     }
     return JsonResponse(body_response)
+
+
+def imageFile(str):
+    # Regex to check valid image file extension.
+    regex = "([^\\s]+(\\.(?i)(jpe?g|png|gif|bmp|webp|jpg))$)"
+
+    # Compile the ReGex
+    p = re.compile(regex)
+
+    # If the string is empty
+    # return false
+    if (str == None):
+        return False
+
+    # Return if the string
+    # matched the ReGex
+    if (re.search(p, str)):
+        return True
+    else:
+        return False
