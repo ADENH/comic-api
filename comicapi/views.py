@@ -108,7 +108,8 @@ def popular_comic(request):
         comic_url = link['href']
         thumbnail = data.find("img", {"class": "ts-post-image"})
         thumbnail_url = thumbnail['src']
-        if not thumbnail_url.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif')):
+
+        if not thumbnail_url.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif','webp')):
             thumbnail_url = thumbnail['data-lazy-src']
 
         title = data.find("div", {"class": "tt"}).text.strip()
