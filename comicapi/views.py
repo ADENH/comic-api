@@ -242,8 +242,8 @@ def search_comic(request):
         comic_url = link['href']
         thumbnail = data.find("img", {"class": "ts-post-image"})
         thumbnail_url = thumbnail['src']
-        if ".jpg" not in thumbnail_url:
-            thumbnail_url = thumbnail_url["data-lazy-src"]
+        if not thumbnail_url.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif', 'webp')):
+            thumbnail_url = thumbnail['data-lazy-src']
         title = data.find("div", {"class": "tt"}).text.strip()
         chapter = data.find("div", {"class": "epxs"}).text
         rating = data.find("div", {"class": "numscore"}).text
